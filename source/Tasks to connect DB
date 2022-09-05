@@ -1,0 +1,4 @@
+1. Connect to DB
+2. Execute SQL: to get board types
+3. Format it to the model requested in the story
+4. Return the result as the reposine
