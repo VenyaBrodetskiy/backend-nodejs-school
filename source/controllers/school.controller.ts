@@ -49,9 +49,7 @@ const getBoardType = async (req: Request, res: Response, next: NextFunction) => 
     if (id > 0) {
         schoolService.getBoardType(id)
             .then((result: whiteBoardType) => {
-                return res.status(200).json({
-                    result
-                });
+                return res.status(200).json(result);
             })
             .catch((error: systemError) => {
                 switch (error.code) {
