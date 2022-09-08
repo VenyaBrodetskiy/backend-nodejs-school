@@ -11,6 +11,7 @@ export class ErrorMessages {
 
 export class Quaries {
     public static WhiteBoardTypes: string = "SELECT * FROM white_board_type";
+    public static WhiteBoardTypesByID: string = "SELECT * FROM white_board_type WHERE id = ";
 }
 
 export const DB_CONNECTION_STRING: string = "server=.;Database=masa_school;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";

@@ -5,6 +5,7 @@ import { ErrorHelper } from '../helpers/error.helper';
 
 interface ISchoolService {
     getBoardTypes(): Promise<whiteBoardType[]>;
+    getBoardType(id: number): Promise<whiteBoardType>;
 }
 
 interface localWhiteBoardType {
@@ -18,7 +19,6 @@ export class SchoolService implements ISchoolService {
         return new Promise<whiteBoardType[]>((resolve, reject) => {
             const sql: SqlClient = require("msnodesqlv8");
             const connectionString: string = DB_CONNECTION_STRING;
-            const query: string = Quaries.WhiteBoardTypes;
             const result: whiteBoardType[] = [];
     
             sql.open(connectionString,  (connectionError: Error, connection: Connection) => {
@@ -26,7 +26,7 @@ export class SchoolService implements ISchoolService {
                     reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.DBConnectionError));
                 } 
                 else {
-                    connection.query(query, (queryError: Error | undefined, queryResult: localWhiteBoardType[] | undefined) => {
+                    connection.query(Quaries.WhiteBoardTypes, (queryError: Error | undefined, queryResult: localWhiteBoardType[] | undefined) => {
                         if (queryError) {
                             reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
                         }
@@ -36,6 +36,38 @@ export class SchoolService implements ISchoolService {
                                     (whiteBoardType: localWhiteBoardType) => {
                                         result.push(this.parseLocalBoardType(whiteBoardType))
                                     });
+                            }
+                            
+                            //console.log(result);
+                            resolve(result);
+                        }   
+                    })
+                }
+            });
+        });
+    }
+
+    public getBoardType(id: number): Promise<whiteBoardType> {
+        return new Promise<whiteBoardType>((resolve, reject) => {
+            const sql: SqlClient = require("msnodesqlv8");
+            const connectionString: string = DB_CONNECTION_STRING;
+            let result: whiteBoardType;
+    
+            sql.open(connectionString,  (connectionError: Error, connection: Connection) => {
+                if (connectionError) {
+                    reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.DBConnectionError));
+                } 
+                else {
+                    connection.query(`${Quaries.WhiteBoardTypesByID} ${id}`, (queryError: Error | undefined, queryResult: localWhiteBoardType[] | undefined) => {
+                        if (queryError) {
+                            reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
+                        }
+                        else {
+                            if (queryResult !== undefined && queryResult.length === 1) {
+                                result = this.parseLocalBoardType(queryResult[0]);
+                            }
+                            else if (queryResult !== undefined && queryResult.length === 0) {
+                                // TODO: Not found error
                             }
                             
                             //console.log(result);

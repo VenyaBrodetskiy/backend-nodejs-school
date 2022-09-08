@@ -10,3 +10,5 @@ export class ErrorHelper {
         return error;
     }
 }
+
+export default { ErrorHelper }
