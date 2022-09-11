@@ -4,6 +4,7 @@ import express, { Express } from 'express';
 import morgan from 'morgan';
 import demoRoutes from './routes/demo.routes';
 import schoolRoutes from './routes/school.routes';
+import routes from './routes/posts';
 
 const router: Express = express();
 
@@ -30,7 +31,9 @@ router.use((req, res, next) => {
 
 /** Routes */
 router.use('/demo', demoRoutes.router);
-router.use('/', schoolRoutes.router);
+//router.use('/', schoolRoutes.router);
+
+router.use('/', routes);
 
 /** Error handling */
 router.use((req, res, next) => {
