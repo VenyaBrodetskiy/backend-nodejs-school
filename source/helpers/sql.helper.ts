@@ -8,11 +8,12 @@ export class SqlHelper {
 
     public static executeQueryArrayResult<T>(query: string): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
+
             SqlHelper.openConnection()
                 .then((connection: Connection) => {
                     connection.query(query, (queryError: Error | undefined, queryResult: T[] | undefined) => {
                         if (queryError) {
-                            reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
+                            reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
                         }
                         else {
                             if (queryResult !== undefined) {
@@ -28,16 +29,17 @@ export class SqlHelper {
         })
     }
 
-    public static executeQuerySingleResult<T>(query: string): Promise<T> {
+    public static executeQuerySingleResult<T>(query: string, param: number): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             SqlHelper.openConnection()
                 .then((connection: Connection) => {
-                    connection.query(query, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+
+                    connection.query(query, [param], (queryError: Error | undefined, queryResult: T[] | undefined) => {
                         if (queryError) {
-                            reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
+                            reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
                         }
                         else {
-                            const notFoundError: systemError = ErrorHelper.parseError(ErrorCodes.NoData, ErrorMessages.NoDataFound)
+                            const notFoundError: systemError = ErrorHelper.createError(ErrorCodes.NoData, ErrorMessages.NoDataFound)
                             if (queryResult !== undefined) {
                                 switch (queryResult.length) {
                                     case 0:
@@ -67,7 +69,7 @@ export class SqlHelper {
         return new Promise<Connection>((resolve, reject) => {
             SqlHelper.sql.open(DB_CONNECTION_STRING,  (connectionError: Error, connection: Connection) => {
                 if (connectionError) {
-                    reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.DBConnectionError));
+                    reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.DBConnectionError));
                 } 
                 else {
                     resolve(connection);
