@@ -12,7 +12,12 @@ export class ResponseHelper {
                     errorMessage: error.message
                 });
             case ErrorCodes.QueryError:
+            case ErrorCodes.NonNumericInput:
                 return response.status(406).json({
+                    errorMessage: error.message
+                })
+            case ErrorCodes.NoData:
+                return response.status(404).json({
                     errorMessage: error.message
                 })
             default:
