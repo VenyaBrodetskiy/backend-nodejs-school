@@ -1,5 +1,5 @@
 /** source/controllers/posts.ts */
-/* import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import axios, { AxiosResponse } from 'axios';
 
 interface Post {
@@ -77,4 +77,4 @@ const addPost = async (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
-export default { getPosts, getPost, updatePost, deletePost, addPost }; */
+export default { getPosts, getPost, updatePost, deletePost, addPost };
