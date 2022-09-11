@@ -1,7 +1,7 @@
-import { Connection, SqlClient, Error } from 'msnodesqlv8'
-import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages, Quaries } from '../constants';
-import { whiteBoardType } from '../entities';
-import { ErrorHelper } from '../helpers/error.helper';
+import { Connection } from 'msnodesqlv8'
+import { Quaries } from '../constants';
+import { systemError, whiteBoardType } from '../entities';
+import { SqlHelper } from '../helpers/sql.helper';
 
 interface ISchoolService {
     getBoardTypes(): Promise<whiteBoardType[]>;
@@ -17,65 +17,33 @@ export class SchoolService implements ISchoolService {
     
     public getBoardTypes(): Promise<whiteBoardType[]> {
         return new Promise<whiteBoardType[]>((resolve, reject) => {
-            const sql: SqlClient = require("msnodesqlv8");
-            const connectionString: string = DB_CONNECTION_STRING;
             const result: whiteBoardType[] = [];
     
-            sql.open(connectionString,  (connectionError: Error, connection: Connection) => {
-                if (connectionError) {
-                    reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.DBConnectionError));
-                } 
-                else {
-                    connection.query(Quaries.WhiteBoardTypes, (queryError: Error | undefined, queryResult: localWhiteBoardType[] | undefined) => {
-                        if (queryError) {
-                            reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
-                        }
-                        else {
-                            if (queryResult !== undefined) {
-                                queryResult.forEach(
-                                    (whiteBoardType: localWhiteBoardType) => {
-                                        result.push(this.parseLocalBoardType(whiteBoardType))
-                                    });
-                            }
-                            
-                            //console.log(result);
-                            resolve(result);
-                        }   
-                    })
-                }
-            });
+            SqlHelper.openConnection()
+                .then((connection: Connection) => {
+                    return SqlHelper.executeQueryArrayResult<localWhiteBoardType>(connection, Quaries.WhiteBoardTypes);
+                })
+                .then((queryResult: localWhiteBoardType[]) => {
+                    queryResult.forEach((whiteBoardType: localWhiteBoardType) => {
+                        result.push(this.parseLocalBoardType(whiteBoardType))
+                    });
+                    resolve(result);
+                })
+                .catch((error: systemError) => reject(error));
         });
     }
 
     public getBoardType(id: number): Promise<whiteBoardType> {
-        return new Promise<whiteBoardType>((resolve, reject) => {
-            const sql: SqlClient = require("msnodesqlv8");
-            const connectionString: string = DB_CONNECTION_STRING;
-            let result: whiteBoardType;
-    
-            sql.open(connectionString,  (connectionError: Error, connection: Connection) => {
-                if (connectionError) {
-                    reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.DBConnectionError));
-                } 
-                else {
-                    connection.query(`${Quaries.WhiteBoardTypesByID} ${id}`, (queryError: Error | undefined, queryResult: localWhiteBoardType[] | undefined) => {
-                        if (queryError) {
-                            reject(ErrorHelper.parseError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
-                        }
-                        else {
-                            if (queryResult !== undefined && queryResult.length === 1) {
-                                result = this.parseLocalBoardType(queryResult[0]);
-                            }
-                            else if (queryResult !== undefined && queryResult.length === 0) {
-                                // TODO: Not found error
-                            }
-                            
-                            //console.log(result);
-                            resolve(result);
-                        }   
-                    })
-                }
-            });
+        return new Promise<whiteBoardType>((resolve, reject) => {    
+            
+            SqlHelper.openConnection()
+                .then((connection: Connection) => {
+                    return SqlHelper.executeQuerySingleResult<localWhiteBoardType>(connection, `${Quaries.WhiteBoardTypesByID} ${id}`);
+                })
+                .then((queryResult: localWhiteBoardType) => {
+                    resolve(this.parseLocalBoardType(queryResult))
+                })
+                .catch((error: systemError) => reject(error));
         });
     }
 
