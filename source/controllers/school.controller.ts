@@ -51,13 +51,18 @@ const updateBoardTypeById = async (req: Request, res: Response, next: NextFuncti
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
             const body: whiteBoardType = req.body;
-            // schoolService.getBoardTypeById(id)
-            //     .then((result: whiteBoardType) => {
-            //         return res.status(200).json(result);
-            //     })
-            //     .catch((error: systemError) => {
-            //         return ResponseHelper.handleError(res, error);
-            //     })
+            const whiteBoard = {
+                id: numericParamOrError,
+                type: body.type
+            };
+            
+            schoolService.updateBoardTypeById(whiteBoard)
+                .then(() => {
+                    return res.sendStatus(200);
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                })
         }
         else {
             // TODO: Error handling

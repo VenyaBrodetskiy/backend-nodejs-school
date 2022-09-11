@@ -6,6 +6,6 @@ router.get('/general/board-types', controller.getBoardTypes);
 router.get('/general/board-types/:id', controller.getBoardTypeById);
 router.get('/general/board-type-by-title/:title', controller.getBoardTypeByTitle);
 
-router.put('/general/board-types/:id/:title', controller.updateBoardTypeById);
+router.put('/general/board-types/:id', controller.updateBoardTypeById);
 
 export default { router }; 
