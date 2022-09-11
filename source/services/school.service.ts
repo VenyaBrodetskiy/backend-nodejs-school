@@ -18,32 +18,26 @@ export class SchoolService implements ISchoolService {
     public getBoardTypes(): Promise<whiteBoardType[]> {
         return new Promise<whiteBoardType[]>((resolve, reject) => {
             const result: whiteBoardType[] = [];
-    
-            SqlHelper.openConnection()
-                .then((connection: Connection) => {
-                    return SqlHelper.executeQueryArrayResult<localWhiteBoardType>(connection, Quaries.WhiteBoardTypes);
-                })
-                .then((queryResult: localWhiteBoardType[]) => {
-                    queryResult.forEach((whiteBoardType: localWhiteBoardType) => {
-                        result.push(this.parseLocalBoardType(whiteBoardType))
-                    });
-                    resolve(result);
-                })
-                .catch((error: systemError) => reject(error));
+            
+            SqlHelper.executeQueryArrayResult<localWhiteBoardType>(Quaries.WhiteBoardTypes)             
+            .then((queryResult: localWhiteBoardType[]) => {
+                queryResult.forEach((whiteBoardType: localWhiteBoardType) => {
+                    result.push(this.parseLocalBoardType(whiteBoardType))
+                });
+                resolve(result);
+            })
+            .catch((error: systemError) => reject(error));
         });
     }
 
     public getBoardType(id: number): Promise<whiteBoardType> {
         return new Promise<whiteBoardType>((resolve, reject) => {    
             
-            SqlHelper.openConnection()
-                .then((connection: Connection) => {
-                    return SqlHelper.executeQuerySingleResult<localWhiteBoardType>(connection, `${Quaries.WhiteBoardTypesByID} ${id}`);
-                })
-                .then((queryResult: localWhiteBoardType) => {
-                    resolve(this.parseLocalBoardType(queryResult))
-                })
-                .catch((error: systemError) => reject(error));
+            SqlHelper.executeQuerySingleResult<localWhiteBoardType>(`${Quaries.WhiteBoardTypesByID} ${id}`)
+            .then((queryResult: localWhiteBoardType) => {
+                resolve(this.parseLocalBoardType(queryResult))
+            })
+            .catch((error: systemError) => reject(error));
         });
     }
 
