@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ErrorCodes, ErrorMessages } from '../constants';
 import { systemError, whiteBoardType } from '../entities';
-import { ErrorHelper } from '../helpers/error.helper';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
 import { SchoolService } from '../services/school.service';
