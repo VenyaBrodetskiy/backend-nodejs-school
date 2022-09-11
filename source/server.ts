@@ -31,7 +31,7 @@ router.use((req, res, next) => {
 
 /** Routes */
 router.use('/demo', demoRoutes.router);
-//router.use('/', schoolRoutes.router);
+router.use('/', schoolRoutes.router);
 
 router.use('/', routes);
 
