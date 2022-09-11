@@ -8,7 +8,7 @@ export class ErrorCodes {
 export class ErrorMessages {
     public static DBConnectionError: string = "DB server connection error";
     public static SQLQueryError: string = "Incorrect query";
-    public static NoDataFound: string = "Data not found";
+    public static NoDataFound: string = "Not found";
 }
 
 export class Quaries {
