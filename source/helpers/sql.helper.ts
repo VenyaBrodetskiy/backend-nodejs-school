@@ -1,5 +1,5 @@
 import { Connection, SqlClient, Error, Query } from "msnodesqlv8";
-import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages } from "../constants";
+import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages, Quaries } from "../constants";
 import { systemError } from "../entities";
 import { ErrorHelper } from "./error.helper";
 
@@ -65,24 +65,69 @@ export class SqlHelper {
         })
     }
 
-    public static executeQueryNoResult<T>(query: string, ...params: (string | number )[]): Promise<void> {
+    public static executeQueryNoResult(query: string, ignoreNoRowsAffected: boolean, ...params: (string | number )[]): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             SqlHelper.openConnection()
                 .then((connection: Connection) => {
 
                     const q: Query = connection.query(query, params, (queryError: Error | undefined) => {
                         if (queryError) {
-                            reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
+                            switch (queryError.code) {
+                                case 547: // specific number of error which this package shows in case there is a conflict in DB
+                                    reject(ErrorHelper.createError(ErrorCodes.DeletionConflict, ErrorMessages.DeletionConflict));
+                                    break;
+                                default:
+                                    reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
+                            }
+                            
                         }; 
                     })
-                    
-                    q.on('rowcount', (count: number) => {
-                        if (count === 0) {
+
+                    q.on('rowcount', (rowCount: number) => {
+                        if (!ignoreNoRowsAffected && (rowCount === 0)) {
                             reject(ErrorHelper.createError(ErrorCodes.NoData, ErrorMessages.NoDataFound));
                             return;
                         }
 
                         resolve();
+                    })
+
+                })
+                .catch((error:systemError) => reject(error));
+            
+        })
+    }
+
+    public static createNew<T>(query: string, original: T, ...params: (string | number )[]): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            SqlHelper.openConnection()
+                .then((connection: Connection) => {
+                    const quaries: string[] = [query, Quaries.SelectIdentity];
+                    const executedQuery: string = quaries.join(';');
+                    let executionCounter: number = 0;
+                    connection.query(executedQuery, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+                        if (queryError) {
+                            reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
+                        }
+                        else {
+                            executionCounter++;
+                            const badQueryError: systemError = ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError)
+                            
+                            if (executionCounter === quaries.length) {
+                                if (queryResult !== undefined) {
+                                    if (queryResult.length === 1) {
+                                        (original as any).id = (queryResult[0] as any).id;
+                                        resolve(original);
+                                    }
+                                    else {
+                                        reject(badQueryError);
+                                    }
+                                }
+                                else {
+                                    reject(badQueryError);
+                                }
+                            }
+                        }
                     })
 
                 })

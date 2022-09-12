@@ -1,12 +1,11 @@
-import { ErrorCodes, ErrorMessages } from "../constants";
+import { ErrorCodes, ErrorMessages, NON_EXISTING_ID } from "../constants";
 import { systemError } from "../entities";
 import { ErrorHelper } from "./error.helper";
-import { ResponseHelper } from "./response.helper";
 
 export class RequestHelper {
     
     public static ParseNumericInput(input: string): number | systemError {
-        let result: number = -1; // declare default value, which obviously cannot work
+        let result: number = NON_EXISTING_ID; // declare default value, which obviously cannot work
 
         if (isNaN(Number(input))) {
             const nonNumericError: systemError = ErrorHelper.createError(ErrorCodes.NonNumericInput, ErrorMessages.NonNumericInput);
