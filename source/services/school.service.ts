@@ -1,7 +1,9 @@
-import { Quaries } from '../constants';
+import { Quaries, TEMP_USER_ID } from '../constants';
 import { systemError, whiteBoardType } from '../entities';
 import { SqlHelper } from '../helpers/sql.helper';
 import _ from 'underscore';
+import { Status } from '../enums';
+import { DateHelper } from '../helpers/date.helper';
 
 interface ISchoolService {
     getBoardTypes(): Promise<whiteBoardType[]>;
@@ -16,6 +18,11 @@ interface ISchoolService {
 interface localWhiteBoardType {
     id: number;
     white_board_type: string;
+    create_date: Date;
+    update_date: Date;
+    create_user_id: number;
+    update_user_id: number;
+    status_id: number;
 }
 
 export class SchoolService implements ISchoolService {
@@ -24,7 +31,7 @@ export class SchoolService implements ISchoolService {
         return new Promise<whiteBoardType[]>((resolve, reject) => {
             const result: whiteBoardType[] = [];
             
-            SqlHelper.executeQueryArrayResult<localWhiteBoardType>(Quaries.WhiteBoardTypes)             
+            SqlHelper.executeQueryArrayResult<localWhiteBoardType>(Quaries.WhiteBoardTypes, Status.Active)             
             .then((queryResult: localWhiteBoardType[]) => {
                 queryResult.forEach((whiteBoardType: localWhiteBoardType) => {
                     result.push(this.parseLocalBoardType(whiteBoardType))
@@ -94,7 +101,9 @@ export class SchoolService implements ISchoolService {
 
     public deleteBoardTypeById(id: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult(Quaries.DeleteWhiteBoardTypeById, true, id)
+            const updateDate: Date = new Date();
+            const updateUser: number = TEMP_USER_ID;
+            SqlHelper.executeQueryNoResult(Quaries.DeleteWhiteBoardTypeById, true, DateHelper.dateToString(updateDate), updateUser, Status.NotActive, id, Status.Active)
             .then(() => {
                 resolve();
             })
