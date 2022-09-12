@@ -21,7 +21,7 @@ export class SqlParameters {
 export class Quaries {
     public static WhiteBoardTypes: string = "SELECT * FROM white_board_type";
     public static WhiteBoardTypesByID: string = `SELECT * FROM white_board_type WHERE id = ?`;
-    public static WhiteBoardTypeByTitle: string = "SELECT * FROM white_board_type WHERE white_board_type LIKE ";
+    public static WhiteBoardTypeByTitle: string = "SELECT * FROM white_board_type WHERE white_board_type LIKE ?";
     public static UpdateWhiteBoardTypeById: string = "UPDATE white_board_type SET white_board_type = ? WHERE id = ?";
 }
 
