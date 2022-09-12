@@ -54,8 +54,7 @@ export class SchoolService implements ISchoolService {
 
     public getBoardTypeByTitle(title: string): Promise<whiteBoardType[]> {
         return new Promise<whiteBoardType[]>((resolve, reject) => {
-            const query: string = `${Quaries.WhiteBoardTypeByTitle} '%${title}%'`;
-            SqlHelper.executeQueryArrayResult<localWhiteBoardType>(query)
+            SqlHelper.executeQueryArrayResult<localWhiteBoardType>(Quaries.WhiteBoardTypeByTitle, `%${title}%`)
                 .then((queryResult: localWhiteBoardType[]) => {
                     resolve(_.map(queryResult, (result: localWhiteBoardType) => this.parseLocalBoardType(result)));
                 })

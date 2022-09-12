@@ -1,4 +1,4 @@
-import { Connection, SqlClient, Error } from "msnodesqlv8";
+import { Connection, SqlClient, Error, Query } from "msnodesqlv8";
 import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages } from "../constants";
 import { systemError } from "../entities";
 import { ErrorHelper } from "./error.helper";
@@ -6,12 +6,12 @@ import { ErrorHelper } from "./error.helper";
 export class SqlHelper {
     static sql: SqlClient = require("msnodesqlv8");
 
-    public static executeQueryArrayResult<T>(query: string): Promise<T[]> {
+    public static executeQueryArrayResult<T>(query: string, ...params: (string | number)[]): Promise<T[]> {
         return new Promise<T[]>((resolve, reject) => {
 
             SqlHelper.openConnection()
                 .then((connection: Connection) => {
-                    connection.query(query, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+                    connection.query(query, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
                         if (queryError) {
                             reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
                         }
@@ -70,13 +70,19 @@ export class SqlHelper {
             SqlHelper.openConnection()
                 .then((connection: Connection) => {
 
-                    connection.query(query, params, (queryError: Error | undefined) => {
+                    const q: Query = connection.query(query, params, (queryError: Error | undefined) => {
                         if (queryError) {
                             reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
+                        }; 
+                    })
+                    
+                    q.on('rowcount', (count: number) => {
+                        if (count === 0) {
+                            reject(ErrorHelper.createError(ErrorCodes.NoData, ErrorMessages.NoDataFound));
+                            return;
                         }
-                        else {
-                            resolve();
-                        }
+
+                        resolve();
                     })
 
                 })
