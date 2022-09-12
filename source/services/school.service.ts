@@ -6,7 +6,11 @@ import _ from 'underscore';
 interface ISchoolService {
     getBoardTypes(): Promise<whiteBoardType[]>;
     getBoardTypeById(id: number): Promise<whiteBoardType>;
-    updateBoardTypeById(whiteBoardType: whiteBoardType): Promise<void>;
+    getBoardTypeByTitle(title: string): Promise<whiteBoardType[]>
+    updateBoardTypeById(whiteBoardType: whiteBoardType): Promise<whiteBoardType>;
+    addBoardType(whiteBoardType: whiteBoardType): Promise<whiteBoardType>;
+    addBoardType2(whiteBoardType: whiteBoardType): Promise<whiteBoardType>;
+    deleteBoardTypeById(id: number): Promise<void>;
 }
 
 interface localWhiteBoardType {
@@ -42,16 +46,6 @@ export class SchoolService implements ISchoolService {
         });
     }
 
-    public updateBoardTypeById(whiteBoardType: whiteBoardType): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult<localWhiteBoardType>(Quaries.UpdateWhiteBoardTypeById, whiteBoardType.type, whiteBoardType.id)
-            .then(() => {
-                resolve()
-            })
-            .catch((error: systemError) => reject(error));
-        });
-    }
-
     public getBoardTypeByTitle(title: string): Promise<whiteBoardType[]> {
         return new Promise<whiteBoardType[]>((resolve, reject) => {
             SqlHelper.executeQueryArrayResult<localWhiteBoardType>(Quaries.WhiteBoardTypeByTitle, `%${title}%`)
@@ -63,6 +57,51 @@ export class SchoolService implements ISchoolService {
                 });
         });
     }
+
+    public updateBoardTypeById(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
+        return new Promise<whiteBoardType>((resolve, reject) => {
+            SqlHelper.executeQueryNoResult(Quaries.UpdateWhiteBoardTypeById, false, whiteBoardType.type, whiteBoardType.id)
+            .then(() => {
+                resolve(whiteBoardType);
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
+    public addBoardType(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
+        return new Promise<whiteBoardType>((resolve, reject) => {
+            SqlHelper.createNew<whiteBoardType>(Quaries.AddWhiteBoardType, whiteBoardType, whiteBoardType.type)
+            .then((result: whiteBoardType) => {
+                resolve(result);
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
+    // let's try to do in other logic
+    public addBoardType2(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
+        return new Promise<whiteBoardType>((resolve, reject) => {
+            SqlHelper.executeQueryNoResult(Quaries.AddWhiteBoardType, false, whiteBoardType.type)
+            .then(() => {
+                return SqlHelper.executeQuerySingleResult<localWhiteBoardType>(Quaries.SelectIdentity);
+            })
+            .then((queryResult: localWhiteBoardType) => {
+                resolve(this.parseLocalBoardType(queryResult));
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
+    public deleteBoardTypeById(id: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            SqlHelper.executeQueryNoResult(Quaries.DeleteWhiteBoardTypeById, true, id)
+            .then(() => {
+                resolve();
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
 
     private parseLocalBoardType(local: localWhiteBoardType): whiteBoardType {     
         return {
