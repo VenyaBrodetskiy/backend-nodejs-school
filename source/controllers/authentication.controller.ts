@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorService } from '../services/error.service';
-import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { AuthenticationService } from '../services/authentication.service';
-import { systemError } from '../entities';
+import { jwsUserData, systemError } from '../entities';
 import { ResponseHelper } from '../helpers/response.helper';
+import { TOKEN_SECRET } from '../constants';
 
 interface localUser {
     login: string;
@@ -15,12 +16,22 @@ const authenticationService: AuthenticationService = new AuthenticationService(e
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
 
-    const body: localUser = req.body;
+    const user: localUser = req.body;
 
-    authenticationService.login(body.login, body.password)
+    authenticationService.login(user.login, user.password)
         .then((id: number) => {
             // TODO: generate JWT token
-            const token: string = '';
+            const jwtUser: jwsUserData = {
+                userId: id
+            };
+            const token: string = jwt.sign(
+                jwtUser,
+                TOKEN_SECRET,
+                {
+                  expiresIn: "2h",
+                }
+            );
+
             return res.status(200).json({
                 token: token
             });
