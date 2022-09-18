@@ -1,5 +1,8 @@
 import { AppError } from "./enums";
 
+export interface jwsUserData {
+    userId: number;
+}
 export interface entityWithId{
     id: number;
 }
