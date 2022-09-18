@@ -1,6 +1,6 @@
 import { Connection, SqlClient, Error, Query } from "msnodesqlv8";
 import { DB_CONNECTION_STRING, ErrorCodes, ErrorMessages, Quaries } from "../constants";
-import { systemError } from "../entities";
+import { systemError, entityWithId } from "../entities";
 import { ErrorHelper } from "./error.helper";
 
 export class SqlHelper {
@@ -98,14 +98,14 @@ export class SqlHelper {
         })
     }
 
-    public static createNew<T>(query: string, original: T, ...params: (string | number )[]): Promise<T> {
-        return new Promise<T>((resolve, reject) => {
+    public static createNew(query: string, original: entityWithId, ...params: (string | number )[]): Promise<entityWithId> {
+        return new Promise<entityWithId>((resolve, reject) => {
             SqlHelper.openConnection()
                 .then((connection: Connection) => {
                     const quaries: string[] = [query, Quaries.SelectIdentity];
                     const executedQuery: string = quaries.join(';');
                     let executionCounter: number = 0;
-                    connection.query(executedQuery, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+                    connection.query(executedQuery, params, (queryError: Error | undefined, queryResult: entityWithId[] | undefined) => {
                         if (queryError) {
                             reject(ErrorHelper.createError(ErrorCodes.QueryError, ErrorMessages.SQLQueryError));
                         }
@@ -116,7 +116,8 @@ export class SqlHelper {
                             if (executionCounter === quaries.length) {
                                 if (queryResult !== undefined) {
                                     if (queryResult.length === 1) {
-                                        (original as any).id = (queryResult[0] as any).id;
+                                        original.id = 
+                                        original.id = queryResult[0].id;
                                         resolve(original);
                                     }
                                     else {
