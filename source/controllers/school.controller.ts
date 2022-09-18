@@ -3,9 +3,11 @@ import { NON_EXISTING_ID } from '../constants';
 import { systemError, whiteBoardType } from '../entities';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
+import { ErrorService } from '../services/error.service';
 import { SchoolService } from '../services/school.service';
 
-const schoolService: SchoolService = new SchoolService();
+const errorService: ErrorService = new ErrorService();
+const schoolService: SchoolService = new SchoolService(errorService);
 
 const getBoardTypes = async (req: Request, res: Response, next: NextFunction) => {
     schoolService.getBoardTypes()
@@ -21,7 +23,7 @@ const getBoardTypes = async (req: Request, res: Response, next: NextFunction) =>
 };
 
 const getBoardTypeById = async (req: Request, res: Response, next: NextFunction) => {
-    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
@@ -58,7 +60,7 @@ const getBoardTypeByTitle = async (req: Request, res: Response, next: NextFuncti
 
 const updateBoardTypeById = async (req: Request, res: Response, next: NextFunction) => {
 
-    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
@@ -120,7 +122,7 @@ const addBoardType2 = async (req: Request, res: Response, next: NextFunction) =>
 };
 
 const deleteBoardTypeById = async (req: Request, res: Response, next: NextFunction) => {
-    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
