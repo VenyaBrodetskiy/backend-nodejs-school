@@ -117,6 +117,8 @@ export class SchoolService implements ISchoolService {
     public deleteBoardTypeById(id: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const updateDate: Date = new Date();
+
+            // TODO: revise this const temp user to passed from request (by auth)
             const updateUser: number = TEMP_USER_ID;
             SqlHelper.executeQueryNoResult(this.errorService, Queries.DeleteWhiteBoardTypeById, true, DateHelper.dateToString(updateDate), updateUser, Status.NotActive, id, Status.Active)
             .then(() => {
