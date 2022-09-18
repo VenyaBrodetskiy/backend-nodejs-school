@@ -1,14 +1,15 @@
-import { ErrorCodes, ErrorMessages, NON_EXISTING_ID } from "../constants";
+import { NON_EXISTING_ID } from "../constants";
 import { systemError } from "../entities";
-import { ErrorHelper } from "./error.helper";
+import { AppError } from "../enums";
+import { ErrorService } from "../services/error.service";
 
 export class RequestHelper {
     
-    public static ParseNumericInput(input: string): number | systemError {
+    public static ParseNumericInput(errorService: ErrorService, input: string): number | systemError {
         let result: number = NON_EXISTING_ID; // declare default value, which obviously cannot work
 
         if (isNaN(Number(input))) {
-            const nonNumericError: systemError = ErrorHelper.createError(ErrorCodes.NonNumericInput, ErrorMessages.NonNumericInput);
+            const nonNumericError: systemError = errorService.getError(AppError.NonNumericInput);
             return nonNumericError;
         }
     
@@ -16,7 +17,7 @@ export class RequestHelper {
             result = parseInt(input);
         }
         else {
-            const noInputParameterError: systemError = ErrorHelper.createError(ErrorCodes.InputParameterNotSupplied, ErrorMessages.InputParameterNotSupplied);
+            const noInputParameterError: systemError = errorService.getError(AppError.InputParameterNotSupplied);
             return noInputParameterError;
         }
 
