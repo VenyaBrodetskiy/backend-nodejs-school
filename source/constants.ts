@@ -1,24 +1,3 @@
-export class ErrorCodes {
-    public static GeneralError: number = 99;
-    public static ConnectionError: number = 100;
-    public static QueryError: number = 101;
-    public static NoData: number = 102;
-    public static NonNumericInput: number = 103;
-    public static InputParameterNotSupplied: number = 104;
-    public static DeletionConflict: number = 105;
-
-}
-
-export class ErrorMessages {
-    public static GeneralError: string = "General error";
-    public static DBConnectionError: string = "DB server connection error";
-    public static SQLQueryError: string = "Incorrect query";
-    public static NoDataFound: string = "Not found";
-    public static NonNumericInput: string = "Non numeric input supplied";
-    public static InputParameterNotSupplied: string = "Input Parameter Not Supplied";
-    public static DeletionConflict: string = "Delete failed due to conflict in sql DB";
-}
-
 export class SqlParameters {
     public static Id: string = "id";
 }
