@@ -1,5 +1,5 @@
 import { Connection, SqlClient, Error, Query } from "msnodesqlv8";
-import { DB_CONNECTION_STRING, Quaries } from "../constants";
+import { DB_CONNECTION_STRING, Queries } from "../constants";
 import { systemError, entityWithId } from "../entities";
 import { AppError } from "../enums";
 import { ErrorService } from "../services/error.service";
@@ -103,7 +103,7 @@ export class SqlHelper {
         return new Promise<entityWithId>((resolve, reject) => {
             SqlHelper.openConnection(errorService)
                 .then((connection: Connection) => {
-                    const quaries: string[] = [query, Quaries.SelectIdentity];
+                    const quaries: string[] = [query, Queries.SelectIdentity];
                     const executedQuery: string = quaries.join(';');
                     let executionCounter: number = 0;
                     connection.query(executedQuery, params, (queryError: Error | undefined, queryResult: entityWithId[] | undefined) => {
