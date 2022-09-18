@@ -1,0 +1,9 @@
+1. create auth service
+    query the DB for the user by login
+    in case the user doesn't exist: return not found
+        (the error return to the user should be 403: forbidden)
+    in case the user is found: verify the hashed password
+        verification failed: 403 forbidden (new AppError)
+        verification succesed: return true
+2. in case the service returns true
+    Generate JWT token and respond with it
