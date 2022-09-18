@@ -7,6 +7,6 @@ export class DateHelper {
         const minute: string = input.getMinutes().toString().padStart(2, "0");
         const second: string = input.getSeconds().toString().padStart(2, "0");
 
-        return `${year}${month}${day} ${hour}${minute}${second}`
+        return `${year}${month}${day} ${hour}:${minute}:${second}`
     }
 }
