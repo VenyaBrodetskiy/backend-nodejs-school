@@ -45,7 +45,7 @@ export class SchoolService implements ISchoolService {
     public getBoardTypeById(id: number): Promise<whiteBoardType> {
         return new Promise<whiteBoardType>((resolve, reject) => {    
             
-            SqlHelper.executeQuerySingleResult<localWhiteBoardType>(Quaries.WhiteBoardTypesByID, id)
+            SqlHelper.executeQuerySingleResult<localWhiteBoardType>(Quaries.WhiteBoardTypesByID, id, Status.Active)
             .then((queryResult: localWhiteBoardType) => {
                 resolve(this.parseLocalBoardType(queryResult))
             })
@@ -67,7 +67,9 @@ export class SchoolService implements ISchoolService {
 
     public updateBoardTypeById(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
         return new Promise<whiteBoardType>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult(Quaries.UpdateWhiteBoardTypeById, false, whiteBoardType.type, whiteBoardType.id)
+            const updateDate: Date = new Date();
+            const updateUser: number = TEMP_USER_ID;
+            SqlHelper.executeQueryNoResult(Quaries.UpdateWhiteBoardTypeById, false, whiteBoardType.type, DateHelper.dateToString(updateDate), updateUser, whiteBoardType.id, Status.Active)
             .then(() => {
                 resolve(whiteBoardType);
             })
@@ -77,7 +79,9 @@ export class SchoolService implements ISchoolService {
 
     public addBoardType(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
         return new Promise<whiteBoardType>((resolve, reject) => {
-            SqlHelper.createNew<whiteBoardType>(Quaries.AddWhiteBoardType, whiteBoardType, whiteBoardType.type)
+            const createDate: string = DateHelper.dateToString(new Date());
+            const createUser: number = TEMP_USER_ID;
+            SqlHelper.createNew<whiteBoardType>(Quaries.AddWhiteBoardType, whiteBoardType, whiteBoardType.type, createDate, createDate, createUser, createUser, Status.Active)
             .then((result: whiteBoardType) => {
                 resolve(result);
             })
