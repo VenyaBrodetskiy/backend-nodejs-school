@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ErrorService } from '../services/error.service';
 import jwt from 'jsonwebtoken';
 import { AuthenticationService } from '../services/authentication.service';
-import { jwsUserData, systemError } from '../entities';
+import { authenticationToken, jwtUserData, systemError } from '../entities';
 import { ResponseHelper } from '../helpers/response.helper';
 import { TOKEN_SECRET } from '../constants';
 
@@ -19,13 +19,15 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     const user: localUser = req.body;
 
     authenticationService.login(user.login, user.password)
-        .then((id: number) => {
+        .then((userData: jwtUserData) => {
             // TODO: generate JWT token
-            const jwtUser: jwsUserData = {
-                userId: id
+
+            const authenticationToken: authenticationToken = {
+                userData: userData
             };
+
             const token: string = jwt.sign(
-                jwtUser,
+                authenticationToken,
                 TOKEN_SECRET,
                 {
                   expiresIn: "2h",
