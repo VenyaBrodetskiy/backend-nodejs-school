@@ -1,8 +1,5 @@
-import { AppError } from "./enums";
-
-export interface jwsUserData {
-    userId: number;
-}
+import { AppError, Role } from "./enums";
+import { Request } from "express";
 export interface entityWithId{
     id: number;
 }
@@ -22,3 +19,14 @@ export interface sqlParameter {
     type: any;
     value: string | number;
 }
+
+export interface authenticationToken {
+    userData: jwtUserData;
+}
+
+export interface AuthenticatedRequest extends Request, authenticationToken {}
+export interface jwtUserData {
+    userId: number;
+    roleId: Role;
+}
+
