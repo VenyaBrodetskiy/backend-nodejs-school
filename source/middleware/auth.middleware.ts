@@ -2,13 +2,14 @@ import { NextFunction, Response, Request } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { TOKEN_SECRET } from "../constants";
 import { AuthenticatedRequest, jwtUserData } from "../entities";
+import { Role } from "../enums";
 interface jwtBase {
     userData: jwtUserData;
     exp: number;
     iat: number;
 }
 
-function verifyToken(req: Request, res: Response, next: NextFunction)  {
+const verifyToken = (roles: Role[]) => (req: Request, res: Response, next: NextFunction) => {
     let token: string | undefined = req.headers["authorization"]?.toString(); 
 
     if (!token) {
@@ -18,6 +19,9 @@ function verifyToken(req: Request, res: Response, next: NextFunction)  {
     try {
         token = token.substring("Bearer ".length);
         const decoded: string | JwtPayload = jwt.verify(token, TOKEN_SECRET);
+        if (roles.indexOf((decoded as jwtBase).userData.roleId) === -1) {
+            return res.sendStatus(401);
+        }
         (req as AuthenticatedRequest).userData = (decoded as jwtBase).userData;
     } 
     catch (err) {

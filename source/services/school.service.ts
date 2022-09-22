@@ -1,4 +1,4 @@
-import { Queries, TEMP_USER_ID } from '../constants';
+import { Queries } from '../constants';
 import { entityWithId, systemError, whiteBoardType } from '../entities';
 import { SqlHelper } from '../helpers/sql.helper';
 import _ from 'underscore';
@@ -10,10 +10,10 @@ interface ISchoolService {
     getBoardTypes(): Promise<whiteBoardType[]>;
     getBoardTypeById(id: number): Promise<whiteBoardType>;
     getBoardTypeByTitle(title: string): Promise<whiteBoardType[]>
-    updateBoardTypeById(whiteBoardType: whiteBoardType): Promise<whiteBoardType>;
-    addBoardType(whiteBoardType: whiteBoardType): Promise<whiteBoardType>;
-    addBoardType2(whiteBoardType: whiteBoardType): Promise<whiteBoardType>;
-    deleteBoardTypeById(id: number): Promise<void>;
+    updateBoardTypeById(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType>;
+    addBoardType(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType>;
+    addBoardType2(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType>;
+    deleteBoardTypeById(id: number, userId: number): Promise<void>;
 }
 
 interface localWhiteBoardType {
@@ -75,11 +75,10 @@ export class SchoolService implements ISchoolService {
         });
     }
 
-    public updateBoardTypeById(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
+    public updateBoardTypeById(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {
         return new Promise<whiteBoardType>((resolve, reject) => {
             const updateDate: Date = new Date();
-            const updateUser: number = TEMP_USER_ID;
-            SqlHelper.executeQueryNoResult(this.errorService, Queries.UpdateWhiteBoardTypeById, false, whiteBoardType.type, DateHelper.dateToString(updateDate), updateUser, whiteBoardType.id, Status.Active)
+            SqlHelper.executeQueryNoResult(this.errorService, Queries.UpdateWhiteBoardTypeById, false, whiteBoardType.type, DateHelper.dateToString(updateDate), userId, whiteBoardType.id, Status.Active)
             .then(() => {
                 resolve(whiteBoardType);
             })
@@ -87,12 +86,11 @@ export class SchoolService implements ISchoolService {
         });
     }
 
-    public addBoardType(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
+    public addBoardType(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {
         return new Promise<whiteBoardType>((resolve, reject) => {
             const createDate: string = DateHelper.dateToString(new Date());
-            const createUser: number = TEMP_USER_ID;
 
-            SqlHelper.createNew(this.errorService, Queries.AddWhiteBoardType, whiteBoardType, whiteBoardType.type, createDate, createDate, createUser, createUser, Status.Active)
+            SqlHelper.createNew(this.errorService, Queries.AddWhiteBoardType, whiteBoardType, whiteBoardType.type, createDate, createDate, userId, userId, Status.Active)
             .then((result: entityWithId) => {
                 resolve(result as whiteBoardType);
             })
@@ -101,7 +99,7 @@ export class SchoolService implements ISchoolService {
     }
 
     // let's try to do in other logic
-    public addBoardType2(whiteBoardType: whiteBoardType): Promise<whiteBoardType> {
+    public addBoardType2(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {
         return new Promise<whiteBoardType>((resolve, reject) => {
             SqlHelper.executeQueryNoResult(this.errorService, Queries.AddWhiteBoardType, false, whiteBoardType.type)
             .then(() => {
@@ -114,13 +112,12 @@ export class SchoolService implements ISchoolService {
         });
     }
 
-    public deleteBoardTypeById(id: number): Promise<void> {
+    public deleteBoardTypeById(id: number, userId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const updateDate: Date = new Date();
 
             // TODO: revise this const temp user to passed from request (by auth)
-            const updateUser: number = TEMP_USER_ID;
-            SqlHelper.executeQueryNoResult(this.errorService, Queries.DeleteWhiteBoardTypeById, true, DateHelper.dateToString(updateDate), updateUser, Status.NotActive, id, Status.Active)
+            SqlHelper.executeQueryNoResult(this.errorService, Queries.DeleteWhiteBoardTypeById, true, DateHelper.dateToString(updateDate), userId, Status.NotActive, id, Status.Active)
             .then(() => {
                 resolve();
             })

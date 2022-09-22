@@ -4,8 +4,15 @@ export interface entityWithId{
     id: number;
 }
 
-export interface whiteBoardType extends entityWithId{
+export interface whiteBoardType extends entityWithId {
     type: string;
+}
+
+export interface user extends entityWithId {
+    firstName: string;
+    lastName: string;
+    login?: string;
+    password?: string;
 }
 
 export interface systemError {
