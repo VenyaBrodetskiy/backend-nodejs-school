@@ -71,7 +71,7 @@ const updateBoardTypeById = async (req: Request, res: Response, next: NextFuncti
                 type: body.type
             };
             
-            schoolService.updateBoardTypeById(whiteBoard)
+            schoolService.updateBoardTypeById(whiteBoard, (req as AuthenticatedRequest).userData.userId)
                 .then((result: whiteBoardType) => {
                     return res.status(200).json(result);
                 })
@@ -96,7 +96,7 @@ const addBoardType = async (req: Request, res: Response, next: NextFunction) => 
         type: body.type
     };
             
-    schoolService.addBoardType(whiteBoard)
+    schoolService.addBoardType(whiteBoard, (req as AuthenticatedRequest).userData.userId)
         .then((result: whiteBoardType) => {
             return res.status(200).json(result);
         })
@@ -113,7 +113,7 @@ const addBoardType2 = async (req: Request, res: Response, next: NextFunction) =>
         type: body.type
     };
             
-    schoolService.addBoardType(whiteBoard)
+    schoolService.addBoardType(whiteBoard, (req as AuthenticatedRequest).userData.userId)
         .then((result) => {
             return res.status(200).json(result);
         })
@@ -127,7 +127,7 @@ const deleteBoardTypeById = async (req: Request, res: Response, next: NextFuncti
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
-            schoolService.deleteBoardTypeById(numericParamOrError)
+            schoolService.deleteBoardTypeById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
                 .then(() => {
                     return res.sendStatus(200);
                 })
