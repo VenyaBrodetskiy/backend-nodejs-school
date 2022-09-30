@@ -1,4 +1,4 @@
-import { Connection, SqlClient, Error, Query } from "msnodesqlv8";
+import { Connection, SqlClient, Error, Query, ProcedureManager } from "msnodesqlv8";
 import { DB_CONNECTION_STRING, Queries } from "../constants";
 import { systemError, entityWithId } from "../entities";
 import { AppError } from "../enums";
@@ -104,30 +104,17 @@ export class SqlHelper {
             SqlHelper.openConnection(errorService)
                 .then((connection: Connection) => {
                     const quaries: string[] = [query, Queries.SelectIdentity];
-                    const executedQuery: string = quaries.join(';');
+                    const combinedQuery: string = quaries.join(';');
                     let executionCounter: number = 0;
-                    connection.query(executedQuery, params, (queryError: Error | undefined, queryResult: entityWithId[] | undefined) => {
+                    connection.query(combinedQuery, params, (queryError: Error | undefined, queryResult: entityWithId[] | undefined) => {
                         if (queryError) {
                             reject(errorService.getError(AppError.QueryError));
                         }
                         else {
                             executionCounter++;
-                            const badQueryError: systemError = errorService.getError(AppError.QueryError);
                             
                             if (executionCounter === quaries.length) {
-                                if (queryResult !== undefined) {
-                                    if (queryResult.length === 1) {
-                                        original.id = 
-                                        original.id = queryResult[0].id;
-                                        resolve(original);
-                                    }
-                                    else {
-                                        reject(badQueryError);
-                                    }
-                                }
-                                else {
-                                    reject(badQueryError);
-                                }
+                                SqlHelper.treatInsertResult(errorService, original, queryResult, resolve, reject);
                             }
                         }
                     })
@@ -136,6 +123,81 @@ export class SqlHelper {
                 .catch((error:systemError) => reject(error));
             
         })
+    }
+
+    public static executeStoredProcedure(
+        errorService: ErrorService, procedureName: string, 
+        original: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
+
+            return new Promise<entityWithId>((resolve, reject) => {
+            SqlHelper.openConnection(errorService)
+                .then((connection) => {
+                    const pm: ProcedureManager = connection.procedureMgr();
+                    pm.callproc(procedureName, params, 
+                        (storedProcedureError: Error | undefined, result: entityWithId[] | undefined, output: any[] | undefined) => {
+                            if (storedProcedureError) {
+                                reject(errorService.getError(AppError.QueryError));
+                            }
+                            else {
+                                const id: number | null = SqlHelper.treatInsertResult2(result);
+                                if (id !== null) {
+                                    original.id = id;
+                                    resolve(original);
+                                }
+                                else {
+                                    reject(errorService.getError(AppError.QueryError))
+                                }
+                            }
+                        }
+                    )
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                })
+        })
+    }
+
+    private static treatInsertResult(
+        errorService: ErrorService, original: entityWithId, queryResult: entityWithId[] | undefined,
+        resolve: (result: entityWithId) => void,
+        reject: (error: systemError) => void,
+    ): void {
+
+        const badQueryError: systemError = errorService.getError(AppError.QueryError);
+        
+        if (queryResult !== undefined) {
+            if (queryResult.length === 1) {
+                original.id = queryResult[0].id;
+                resolve(original);
+            }
+            else {
+                reject(badQueryError);
+            }
+        }
+        else {
+            reject(badQueryError);
+        }
+    }
+
+    private static treatInsertResult2(queryResult: entityWithId[] | undefined): number | null {
+        if (queryResult !== undefined) {
+            if (queryResult.length === 1) {
+                return queryResult[0].id;
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
+        // TODO: ask Ilya. Can we rewrite it like this?
+        // if (queryResult !== undefined && queryResult.length === 1) {
+        //     return queryResult[0].id;
+        // }
+        // else {
+        //     return null;
+        // }
     }
 
     private static openConnection(errorService: ErrorService): Promise<Connection> {

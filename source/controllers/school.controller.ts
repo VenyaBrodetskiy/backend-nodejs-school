@@ -122,6 +122,23 @@ const addBoardType2 = async (req: Request, res: Response, next: NextFunction) =>
         })
 };
 
+const addBoardTypeByStoredProcedure = async (req: Request, res: Response, next: NextFunction) => {
+    const body: whiteBoardType = req.body;
+    const whiteBoard = {
+        id: NON_EXISTING_ID,
+        type: body.type
+    };
+
+    schoolService.addBoardTypeByStoredProcedure(whiteBoard, (req as AuthenticatedRequest).userData.userId)
+        .then((result: whiteBoardType) => {
+            return res.status(200).json(result);
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
+        });
+};
+
+
 const deleteBoardTypeById = async (req: Request, res: Response, next: NextFunction) => {
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
@@ -154,5 +171,6 @@ export default {
     updateBoardTypeById, 
     addBoardType, 
     addBoardType2, 
+    addBoardTypeByStoredProcedure,
     deleteBoardTypeById 
 };

@@ -12,6 +12,7 @@ router.put('/board-types/:id', middleware.verifyToken([Role.Administrator, Role.
 
 router.post('/board-types', middleware.verifyToken([Role.Administrator, Role.RegularUser]), controller.addBoardType);
 router.post('/board-types2', middleware.verifyToken([Role.Administrator, Role.RegularUser]), controller.addBoardType2);
+router.post('/board-types-sp', middleware.verifyToken([Role.Administrator, Role.RegularUser]), controller.addBoardTypeByStoredProcedure);
 
 router.delete('/board-types/:id', middleware.verifyToken([Role.Administrator, Role.RegularUser]), controller.deleteBoardTypeById);
 
