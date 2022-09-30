@@ -17,6 +17,9 @@ export class Queries {
     public static DeleteUserById: string = "UPDATE [user] SET update_date = ?, update_user_id = ?, status_id = ? WHERE id = ? AND status_id = ?";
 
 }
+export class StoredProcedures {
+    public static AddWhiteBoardType: string = "sp_create_board_type";
+}
 
 export const DB_CONNECTION_STRING: string = "server=.;Database=masa_school;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
 export const NON_EXISTING_ID: number = -1;

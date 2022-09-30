@@ -1,4 +1,4 @@
-import { Queries } from '../constants';
+import { Queries, StoredProcedures } from '../constants';
 import { entityWithId, systemError, whiteBoardType } from '../entities';
 import { SqlHelper } from '../helpers/sql.helper';
 import _ from 'underscore';
@@ -13,6 +13,7 @@ interface ISchoolService {
     updateBoardTypeById(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType>;
     addBoardType(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType>;
     addBoardType2(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType>;
+    addBoardTypeByStoredProcedure(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType>
     deleteBoardTypeById(id: number, userId: number): Promise<void>;
 }
 
@@ -109,6 +110,18 @@ export class SchoolService implements ISchoolService {
                 resolve(this.parseLocalBoardType(queryResult));
             })
             .catch((error: systemError) => reject(error));
+        });
+    }
+
+    public addBoardTypeByStoredProcedure(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {
+        return new Promise<whiteBoardType>((resolve, reject) => {
+            SqlHelper.executeStoredProcedure(this.errorService, StoredProcedures.AddWhiteBoardType, whiteBoardType, whiteBoardType.type, userId)
+                .then(() => {
+                    resolve(whiteBoardType);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
         });
     }
 
