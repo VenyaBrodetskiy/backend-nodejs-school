@@ -16,6 +16,7 @@ const authenticationService: AuthenticationService = new AuthenticationService(e
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
 
+    // we use body (not url) in order 
     const user: localUser = req.body;
 
     authenticationService.login(user.login, user.password)

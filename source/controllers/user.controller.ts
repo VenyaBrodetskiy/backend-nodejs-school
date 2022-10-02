@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { NON_EXISTING_ID } from '../constants';
-import { AuthenticatedRequest, systemError, user, whiteBoardType } from '../entities';
+import { AuthenticatedRequest, systemError, user } from '../entities';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
 import { ErrorService } from '../services/error.service';
