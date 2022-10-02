@@ -19,7 +19,7 @@ export class AuthenticationService implements IAuthenticationService {
     constructor(private errorService: ErrorService) {
     }
 
-    public login(login: string, password: string):Promise<jwtUserData> {
+    public  login(login: string, password: string):Promise<jwtUserData> {
         return new Promise<jwtUserData>((resolve, reject) => {
             SqlHelper.executeQuerySingleResult<localUser>(this.errorService, Queries.GetUserByLogin, login)
             .then((user: localUser) => {

@@ -29,7 +29,8 @@ export class SqlHelper {
                 .catch((error: systemError) => reject(error));
         })
     }
-
+    
+    // TODO: from Ilya side branch check how to do same with async await
     public static executeQuerySingleResult<T>(errorService: ErrorService, query: string, ...params: (string | number )[]): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             SqlHelper.openConnection(errorService)
