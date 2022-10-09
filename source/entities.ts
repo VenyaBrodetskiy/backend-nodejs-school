@@ -13,6 +13,7 @@ export interface user extends entityWithId {
     lastName: string;
     login?: string;
     password?: string;
+    role?: string;
 }
 
 export interface systemError {
