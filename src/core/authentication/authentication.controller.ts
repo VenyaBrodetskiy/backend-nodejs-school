@@ -15,7 +15,7 @@ class AuthenticationController {
 
     constructor() {}
 
-    login(req: any, res: Response, next: NextFunction) {
+    public login(req: Request, res: Response, next: NextFunction) {
         // we use body (not url) in order 
         const user: localUser = req.body;
 

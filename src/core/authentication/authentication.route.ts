@@ -8,7 +8,7 @@ export class AuthenticationRoutes extends RouteConfig {
         super(app, "AuthenticationRoutes");
     }
 
-    configureRoutes() {
+    public configureRoutes() {
         this.app.route(`/auth/login`).post([AuthenticationController.login]);
         return this.app;
     }
