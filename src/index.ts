@@ -3,6 +3,8 @@ import * as http from "http";
 import cors from "cors";
 import { RouteConfig } from "./framework/route.config";
 import { UserRoutes } from "./modules/user/user.route";
+import { SchoolRoutes } from "./modules/school/school.route";
+import { AuthenticationRoutes } from "./core/authentication/authentication.route";
 
 const routes: Array<RouteConfig> = [];
 const app: Express = express();
@@ -20,6 +22,8 @@ const PORT: number = 4200;
 // } 
 
 routes.push(new UserRoutes(app));
+routes.push(new SchoolRoutes(app));
+routes.push(new AuthenticationRoutes(app));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome world")
