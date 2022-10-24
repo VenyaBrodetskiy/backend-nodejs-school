@@ -8,7 +8,7 @@ class SchoolController {
 
     constructor() {}
 
-    getBoardTypes(req: any, res: Response, next: NextFunction) {
+    public getBoardTypes(req: Request, res: Response, next: NextFunction) {
         // console.log("User data: ", (req as AuthenticatedRequest).userData);
         SchoolService.getBoardTypes()
             .then((result: whiteBoardType[]) => {
@@ -22,7 +22,7 @@ class SchoolController {
 
     }
 
-    getBoardTypeById(req: Request, res: Response, next: NextFunction) {
+    public getBoardTypeById(req: Request, res: Response, next: NextFunction) {
         const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
     
         if (typeof numericParamOrError === "number") {

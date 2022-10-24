@@ -1,6 +1,7 @@
 import { RouteConfig } from '../../framework/route.config';
-import express, { Application, Request, Response } from "express"
-import SchoolController from "./school.controller"
+import express, { Application, Request, Response } from "express";
+import SchoolController from "./school.controller";
+import AuthMiddleware from '../../core/middleware/auth.middleware'
 
 export class SchoolRoutes extends RouteConfig {
     
@@ -8,9 +9,9 @@ export class SchoolRoutes extends RouteConfig {
         super(app, "SchoolRoutes");
     }
 
-    configureRoutes() {
-        this.app.route(`/general/board-types`).get([SchoolController.getBoardTypes]);
-        this.app.route(`/general/board-types/:id`).get([SchoolController.getBoardTypeById]);
+     public configureRoutes() {
+        this.app.route(`/general/board-types`).get([AuthMiddleware.authenticateJWT, SchoolController.getBoardTypes]);
+        this.app.route(`/general/board-types/:id`).get([AuthMiddleware.authenticateJWT, SchoolController.getBoardTypeById]);
         return this.app;
     }
 }
