@@ -26,3 +26,4 @@ export const DB_CONNECTION_STRING: string = "server=.;Database=masa_school;Trust
 export const NON_EXISTING_ID: number = -1;
 export const TEMP_USER_ID: number = 1;
 export const TOKEN_SECRET: string = "fe49a800-fc72-4034-82d9-a60cd5924516"; // generated from google with GUID generator https://www.guidgenerator.com/
+export const DEFAULT_LOG_FOLDER: string = "logs";

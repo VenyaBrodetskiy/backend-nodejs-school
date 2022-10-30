@@ -1,5 +1,5 @@
 import { RouteConfig } from '../../framework/route.config';
-import express, { Application, Request, Response } from "express";
+import { Application } from "express";
 import SchoolController from "./school.controller";
 import AuthMiddleware from '../../core/middleware/auth.middleware'
 import { Role } from '../../enums';

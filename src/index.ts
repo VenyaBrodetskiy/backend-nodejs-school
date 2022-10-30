@@ -5,6 +5,7 @@ import { RouteConfig } from "./framework/route.config";
 import { UserRoutes } from "./modules/user/user.route";
 import { SchoolRoutes } from "./modules/school/school.route";
 import { AuthenticationRoutes } from "./core/authentication/authentication.route";
+import LoggerService from "./core/logger.service";
 
 const routes: Array<RouteConfig> = [];
 const app: Express = express();
@@ -32,8 +33,8 @@ app.get("/", (req: Request, res: Response) => {
 const server: http.Server = http.createServer(app);
 
 server.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
+  LoggerService.info(`Server is running on ${PORT}`);
   routes.forEach((route: RouteConfig) => {
-    console.log(`Routes configured for ${route.getName()}`)
+    LoggerService.info(`Routes configured for ${route.getName()}`)
   })
 })
