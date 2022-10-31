@@ -1,8 +1,9 @@
 import { Connection, SqlClient, Error, Query, ProcedureManager } from "msnodesqlv8";
-import { DB_CONNECTION_STRING, Queries } from "../constants";
+import { Queries } from "../constants";
 import { systemError, entityWithId } from "../entities";
 import { AppError } from "../enums";
 import ErrorService from "../core/error.service";
+import { Environment } from "./env.service";
 
 export class SqlHelper {
     static sql: SqlClient = require("msnodesqlv8");
@@ -203,7 +204,7 @@ export class SqlHelper {
 
     private static openConnection(): Promise<Connection> {
         return new Promise<Connection>((resolve, reject) => {
-            SqlHelper.sql.open(DB_CONNECTION_STRING,  (connectionError: Error, connection: Connection) => {
+            SqlHelper.sql.open(Environment.dbConnectionString,  (connectionError: Error, connection: Connection) => {
                 if (connectionError) {
                     reject(ErrorService.getError(AppError.ConnectionError));
                 } 

@@ -6,14 +6,15 @@ import { UserRoutes } from "./modules/user/user.route";
 import { SchoolRoutes } from "./modules/school/school.route";
 import { AuthenticationRoutes } from "./core/authentication/authentication.route";
 import LoggerService from "./core/logger.service";
+import { Environment } from "./core/env.service";
+
+LoggerService.initialize();
 
 const routes: Array<RouteConfig> = [];
 const app: Express = express();
 
 app.use(express.json());
 app.use(cors());
-
-const PORT: number = 4200;
 
 // will be neede when we add environment
 // if (process.env.DEBUG) {
@@ -32,8 +33,8 @@ app.get("/", (req: Request, res: Response) => {
 
 const server: http.Server = http.createServer(app);
 
-server.listen(PORT, () => {
-  LoggerService.info(`Server is running on ${PORT}`);
+server.listen(Environment.serverPort, () => {
+  LoggerService.info(`Server is running on ${Environment.serverPort}`);
   routes.forEach((route: RouteConfig) => {
     LoggerService.info(`Routes configured for ${route.getName()}`)
   })

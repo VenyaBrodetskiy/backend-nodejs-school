@@ -1,5 +1,5 @@
 import { RouteConfig } from '../../framework/route.config';
-import express, { Application, Request, Response } from "express"
+import { Application } from "express"
 import AuthenticationController from "./authentication.controller"
 
 export class AuthenticationRoutes extends RouteConfig {

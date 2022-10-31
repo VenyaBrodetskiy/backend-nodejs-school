@@ -38,3 +38,9 @@ export interface jwtUserData {
     roleId: Role;
 }
 
+export interface environment {
+    dbConnectionString: string;
+    tokenSecret: string;
+    logsFolder: string;
+    serverPort: number;
+}

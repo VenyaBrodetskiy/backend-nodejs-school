@@ -1,8 +1,8 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import { TOKEN_SECRET } from "../../constants";
 import { AuthenticatedRequest, jwtUserData } from "../../entities";
 import { Role } from "../../enums";
+import { Environment } from "../env.service";
 
 interface jwtBase {
     userData: jwtUserData;
@@ -21,7 +21,7 @@ class AuthMiddleware {
     
         try {
             token = token.substring("Bearer ".length);
-        const decoded: string | JwtPayload = jwt.verify(token, TOKEN_SECRET);
+        const decoded: string | JwtPayload = jwt.verify(token, Environment.tokenSecret);
         
         // in case many-to-many connection of roles to user probably we will need this..
         // if (_.any((decoded as jwtBase).userData.roles, (role: Role) => ))
