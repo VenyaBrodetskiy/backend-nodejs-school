@@ -5,8 +5,9 @@ import { RouteConfig } from "./framework/route.config";
 import { UserRoutes } from "./modules/user/user.route";
 import { SchoolRoutes } from "./modules/school/school.route";
 import { AuthenticationRoutes } from "./core/authentication/authentication.route";
-import LoggerService from "./core/logger.service";
 import { Environment } from "./core/env.service";
+import LoggerService from "./core/logger.service";
+
 
 LoggerService.initialize();
 

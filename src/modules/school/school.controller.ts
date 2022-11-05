@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { NON_EXISTING_ID } from "../../constants";
 import { RequestHelper } from "../../core/request.helper";
-import { AuthenticatedRequest, systemError, whiteBoardType } from "../../entities";
+import { AuthenticatedRequest, classRoom, systemError, teacher, whiteBoardType } from "../../entities";
 import { ResponseHelper } from "../../framework/response.helper";
 import SchoolService from './school.service';
 
@@ -43,7 +43,6 @@ class SchoolController {
         else {
             return ResponseHelper.handleError(res, numericParamOrError);
         }
-        
     };
 
     // SQL injection made by sending the following as a parameter: <' OR 1=1 -- >
@@ -161,6 +160,114 @@ class SchoolController {
         }
         
     };
+
+    public getRoomById(req: Request, res: Response, next: NextFunction) {
+        const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
+    
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                SchoolService.getRoomById(numericParamOrError)
+                    .then((result: classRoom) => {
+                        return res.status(200).json(result);
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    })
+            }
+            else {
+                // TODO: Error handling
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError);
+        }
+    }
+
+    public updateRoomById = async (req: Request, res: Response, next: NextFunction) => {
+
+        const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
+
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                const body: classRoom = req.body;
+                
+                SchoolService.updateRoomById(body, (req as AuthenticatedRequest).userData.userId)
+                    .then((result: classRoom) => {
+                        return res.status(200).json(result);
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    })
+            }
+            else {
+                // TODO: Error handling
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError);
+        }  
+    }
+
+    public addRoom(req: Request, res: Response, next: NextFunction) {
+
+        const body: classRoom = req.body;
+
+        SchoolService.addRoom(body, (req as AuthenticatedRequest).userData.userId)
+            .then((result: classRoom) => {
+                return res.status(200).json(result);
+            })
+            .catch((error: systemError) => {
+                return ResponseHelper.handleError(res, error);
+            })
+    }
+
+    public getTeacherById(req: Request, res: Response, next: NextFunction) {
+        const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
+    
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                SchoolService.getTeacherById(numericParamOrError)
+                    .then((result: teacher) => {
+                        return res.status(200).json(result);
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    })
+            }
+            else {
+                // TODO: Error handling
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError);
+        }
+    }
+
+    public updateTeacherById = async (req: Request, res: Response, next: NextFunction) => {
+
+        const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(req.params.id);
+
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                const body: teacher = req.body;
+                
+                SchoolService.updateTeacherById(body, (req as AuthenticatedRequest).userData.userId)
+                    .then((result: teacher) => {
+                        return res.status(200).json(result);
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    })
+            }
+            else {
+                // TODO: Error handling
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError);
+        }  
+    }
+
 }
 
 // creating singleton

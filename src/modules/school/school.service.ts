@@ -1,9 +1,10 @@
-import _ from 'underscore';
+import _, { result } from 'underscore';
 import { Queries, StoredProcedures } from '../../constants';
-import { entityWithId, systemError, whiteBoardType } from '../../entities';
-import { Status } from '../../enums';
+import { classRoom, entityWithId, systemError, teacher, teacherGraduation, whiteBoardType } from '../../entities';
+import { AppError, Status } from '../../enums';
 import { DateHelper } from '../../framework/date.helper';
 import { SqlHelper} from '../../core/sql.helper'
+import ErrorService from '../../core/error.service';
 
 interface ISchoolService {
     getBoardTypes(): Promise<whiteBoardType[]>;
@@ -24,6 +25,32 @@ interface localWhiteBoardType {
     create_user_id: number;
     update_user_id: number;
     status_id: number;
+}
+
+interface localClassRoom {
+    id: number;
+    room_number: number;
+    room_floor: number;
+    is_has_projector: boolean;
+    create_user_id: number;
+    create_user_first_name: string;
+    create_user_last_name: string;
+    update_user_id: number;
+    update_user_first_name: string;
+    update_user_last_name: string;
+    white_board_type_id: number;
+    white_board_type: string;
+}
+
+interface localTeacher {
+    id: number;
+    first_name: string;
+    last_name: string;
+    is_male: boolean;
+    birthdate: Date;
+    profession_id: number;
+    profession: string; 
+    graduation_year: number;
 }
 
 class SchoolService implements ISchoolService {
@@ -132,6 +159,114 @@ class SchoolService implements ISchoolService {
         });
     }
 
+    public getRoomById(id: number): Promise<classRoom> {
+        return new Promise<classRoom>((resolve, reject) => {    
+            
+            SqlHelper.executeQuerySingleResult<localClassRoom>(Queries.RoomById, id, Status.Active)
+            .then((queryResult: localClassRoom) => {
+                resolve(this.parseLocalClassRoom(queryResult))
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
+    public updateRoomById(room: classRoom, userId: number): Promise<classRoom> {
+        return new Promise<classRoom>((resolve, reject) => {
+            const updateDate: string = DateHelper.dateToString(new Date());
+
+            SqlHelper.executeQueryNoResult(
+                Queries.UpdateRoomById, false, 
+                room.roomNumber, room.roomFloor, room.hasProjector, room.whiteBoardType.id, userId, updateDate, room.id, Status.Active)
+            .then(() => {
+                return this.getRoomById(room.id)
+            })
+            .then((result) => {
+                
+                resolve(result);
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
+    public addRoom(room: classRoom, userId: number): Promise<classRoom> {
+        return new Promise<classRoom>((resolve, reject) => {
+            const createDate: string = DateHelper.dateToString(new Date());
+
+            SqlHelper.createNew(
+                Queries.AddRoom, room, 
+                room.roomNumber, room.roomFloor, room.hasProjector, room.whiteBoardType.id,
+                userId, userId, createDate, createDate, Status.Active)
+            .then((result: entityWithId) => {
+                return this.getRoomById(result.id)
+            })
+            .then((result: classRoom) => {
+                resolve(result);
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
+    public getTeacherById(id: number): Promise<teacher> {
+        return new Promise<teacher>((resolve, reject) => {    
+            
+            SqlHelper.executeQueryArrayResult<localTeacher>(Queries.GetTeacherById, id, Status.Active)
+            .then((queryResult: localTeacher[]) => {
+                resolve(this.parseLocalTeacher(queryResult))
+            })
+            .catch((error: systemError) => reject(error));
+        });
+    }
+
+    public updateTeacherById(teacher: teacher, userId: number): Promise<teacher> {
+        return new Promise<teacher>((resolve, reject) => {
+
+            SqlHelper.executeQueryNoResult(Queries.DeleteTeacherProfessionByTeacherId, true, teacher.id)
+                .then(() => {
+                    teacher.birthdate = new Date(teacher.birthdate as unknown as string);
+                    const promises: Promise<void>[] = _.map(teacher.graduations, (graduation: teacherGraduation, index: number) => {
+                        return SqlHelper.executeQueryNoResult(
+                            Queries.AddProfessionToTeacher, false, teacher.id, graduation.profession.id, graduation.graduationYear, index + 1)
+                    });
+
+                    promises.push(
+                        SqlHelper.executeQueryNoResult(
+                            Queries.UpdateTeacherById, false, 
+                            teacher.firstName, teacher.lastName, teacher.isMale, DateHelper.dateToString(teacher.birthdate), teacher.id)
+                    );
+                    return Promise.all(promises);
+                })
+                .then(() => {
+                    return this.getTeacherById(teacher.id);
+                })
+                .then((result: teacher) => {
+                    resolve(result);
+                })
+                .catch((error: systemError) => reject(error));
+        });
+    }
+
+    private parseLocalClassRoom(local: localClassRoom): classRoom {     
+        return {
+            id: local.id,
+            roomFloor: local.room_floor,
+            roomNumber: local.room_number,
+            hasProjector: local.is_has_projector,
+            createUser: {
+                id: local.create_user_id,
+                firstName: local.create_user_first_name,
+                lastName: local.create_user_last_name
+            },
+            updateUser: {
+                id: local.update_user_id,
+                firstName: local.update_user_first_name,
+                lastName: local.update_user_last_name
+            },
+            whiteBoardType: {
+                id: local.white_board_type_id,
+                type: local.white_board_type
+            }
+        }
+    }    
 
     private parseLocalBoardType(local: localWhiteBoardType): whiteBoardType {     
         return {
@@ -139,6 +274,44 @@ class SchoolService implements ISchoolService {
             type: local.white_board_type
         }
     }
+
+    private parseLocalTeachers(local: localTeacher[]): teacher[] {
+        const teacherGroups: _.Dictionary<localTeacher[]> = _.groupBy(local, (teacher: localTeacher) => teacher.id);
+        
+        const result: teacher[] = [];
+
+        for (let key in teacherGroups) {
+            let value: localTeacher[] = teacherGroups[key];
+
+            result.push(this.parseLocalTeacher(value));
+        }
+
+        return result;
+    }
+
+    private parseLocalTeacher(local: localTeacher[]): teacher {
+        if (local.length === 0) {
+            throw ErrorService.getError(AppError.NoData);
+        }
+
+        return {
+            id: local[0].id,
+            firstName: local[0].first_name,
+            lastName: local[0].last_name,
+            birthdate: local[0].birthdate,
+            isMale: local[0].is_male,
+            graduations: _.map(local, (teacher: localTeacher) => {
+                return {
+                    profession: {
+                        id: teacher.profession_id,
+                        title: teacher.profession
+                    },
+                    graduationYear: teacher.graduation_year
+                };
+            })
+        };
+    }
+
 }
 
 export default new SchoolService();

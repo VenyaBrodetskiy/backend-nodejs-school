@@ -1,4 +1,4 @@
-import { AppError, Role } from "./enums";
+import { AppError, Role, Status } from "./enums";
 import { Request } from "express";
 export interface entityWithId{
     id: number;
@@ -43,4 +43,36 @@ export interface environment {
     tokenSecret: string;
     logsFolder: string;
     serverPort: number;
+}
+
+export interface entityBase extends entityWithId {
+    createDate?: string;
+    updateDate?: string;
+    createUser?: user;
+    updateUser?: user;
+    statusId?: Status;
+}
+
+export interface classRoom extends entityBase {
+    roomNumber: number;
+    roomFloor: number;
+    hasProjector: boolean;
+    whiteBoardType: whiteBoardType;
+}
+
+export interface teacher extends entityWithId {
+    firstName: string;
+    lastName: string;
+    birthdate: Date;
+    isMale: boolean;
+    graduations: teacherGraduation[];
+}
+
+export interface profession extends entityWithId {
+    title: string; 
+}
+
+export interface teacherGraduation {
+    profession: profession;
+    graduationYear: number;
 }
