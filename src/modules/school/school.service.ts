@@ -1,10 +1,11 @@
 import _, { result } from 'underscore';
 import { Queries, StoredProcedures } from '../../constants';
 import { classRoom, entityWithId, systemError, teacher, teacherGraduation, whiteBoardType } from '../../entities';
-import { AppError, Status } from '../../enums';
+import { AppError, Status, TableNames } from '../../enums';
 import { DateHelper } from '../../framework/date.helper';
 import { SqlHelper} from '../../core/sql.helper'
 import ErrorService from '../../core/error.service';
+import DbService from '../../core/db.service';
 
 interface ISchoolService {
     getBoardTypes(): Promise<whiteBoardType[]>;
@@ -54,6 +55,7 @@ interface localTeacher {
 }
 
 class SchoolService implements ISchoolService {
+    private _serviceTable: TableNames = TableNames.WhiteBoardType;
     
     constructor() {
 
@@ -74,15 +76,25 @@ class SchoolService implements ISchoolService {
         });
     }
 
-    public getBoardTypeById(id: number): Promise<whiteBoardType> {
-        return new Promise<whiteBoardType>((resolve, reject) => {    
+    // old implenetation without dbService
+    // public getBoardTypeById(id: number): Promise<whiteBoardType> {
+    //     return new Promise<whiteBoardType>((resolve, reject) => {    
             
-            SqlHelper.executeQuerySingleResult<localWhiteBoardType>(Queries.WhiteBoardTypesByID, id, Status.Active)
-            .then((queryResult: localWhiteBoardType) => {
-                resolve(this.parseLocalBoardType(queryResult))
-            })
-            .catch((error: systemError) => reject(error));
-        });
+    //         SqlHelper.executeQuerySingleResult<localWhiteBoardType>(Queries.WhiteBoardTypesByID, id, Status.Active)
+    //         .then((queryResult: localWhiteBoardType) => {
+    //             resolve(this.parseLocalBoardType(queryResult))
+    //         })
+    //         .catch((error: systemError) => reject(error));
+    //     });
+    // }
+
+    public async getBoardTypeById(id: number): Promise<whiteBoardType> {
+        try {
+            return await DbService.getFromTableById(this._serviceTable, id);
+        }
+        catch (error: any) {
+            throw(error as systemError);
+        }
     }
 
     public getBoardTypeByTitle(title: string): Promise<whiteBoardType[]> {
@@ -97,15 +109,26 @@ class SchoolService implements ISchoolService {
         });
     }
 
-    public updateBoardTypeById(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {
-        return new Promise<whiteBoardType>((resolve, reject) => {
-            const updateDate: Date = new Date();
-            SqlHelper.executeQueryNoResult(Queries.UpdateWhiteBoardTypeById, false, whiteBoardType.type, DateHelper.dateToString(updateDate), userId, whiteBoardType.id, Status.Active)
-            .then(() => {
-                resolve(whiteBoardType);
-            })
-            .catch((error: systemError) => reject(error));
-        });
+    // old implenetation without dbService
+    // public updateBoardTypeById(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {
+    //     return new Promise<whiteBoardType>((resolve, reject) => {
+    //         const updateDate: Date = new Date();
+    //         SqlHelper.executeQueryNoResult(Queries.UpdateWhiteBoardTypeById, false, whiteBoardType.type, DateHelper.dateToString(updateDate), userId, whiteBoardType.id, Status.Active)
+    //         .then(() => {
+    //             resolve(whiteBoardType);
+    //         })
+    //         .catch((error: systemError) => reject(error));
+    //     });
+    // }
+
+    public async updateBoardTypeById(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {
+        try {
+            await DbService.updateTableById(this._serviceTable, whiteBoardType.id, whiteBoardType, userId);
+            return whiteBoardType;
+        }
+        catch (error) {
+            throw(error as systemError);
+        }
     }
 
     public addBoardType(whiteBoardType: whiteBoardType, userId: number): Promise<whiteBoardType> {

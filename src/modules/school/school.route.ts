@@ -15,7 +15,7 @@ export class SchoolRoutes extends RouteConfig {
             .get([AuthMiddleware.verifyToken([Role.Administrator, Role.RegularUser]), 
                 SchoolController.getBoardTypes]);
 
-        this.app.route(`/${this.baseUrl}/board-types/:id`)
+        this.app.route(`/${this.baseUrl}/board-type/:id`)
             .get([AuthMiddleware.verifyToken([Role.Administrator, Role.RegularUser]), 
                 SchoolController.getBoardTypeById]);
 
@@ -23,7 +23,7 @@ export class SchoolRoutes extends RouteConfig {
             .get([AuthMiddleware.verifyToken([Role.Administrator, Role.RegularUser]),
                 SchoolController.getBoardTypeByTitle]);
 
-        this.app.route(`/${this.baseUrl}/board-types/:id`)
+        this.app.route(`/${this.baseUrl}/board-type/:id`)
             .put([AuthMiddleware.verifyToken([Role.Administrator, Role.RegularUser]),
                 SchoolController.updateBoardTypeById]);
 
@@ -39,7 +39,7 @@ export class SchoolRoutes extends RouteConfig {
             .post([AuthMiddleware.verifyToken([Role.Administrator, Role.RegularUser]),
                 SchoolController.addBoardTypeByStoredProcedure]);
 
-        this.app.route(`/${this.baseUrl}/board-types/:id`)
+        this.app.route(`/${this.baseUrl}/board-type/:id`)
             .delete([AuthMiddleware.verifyToken([Role.Administrator, Role.RegularUser]),
                 SchoolController.deleteBoardTypeById]);
 
